@@ -21,8 +21,7 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-// Make Mongoose use `findOneAndUpdate()`. Note that this option is `true`
-// by default, you need to set it to false.
+// Make Mongoose use `findOneAndUpdate()`.
 mongoose.set('useFindAndModify', false);
 
 app.use(express.json()); // for parsing application/json
@@ -33,7 +32,6 @@ app.get('/', (req, res) => {
     res.render('home')
 });
 
-// /campgrounds
 app.get('/campgrounds', async (req, res) => {
     const campgrounds = await CampGround.find({});
     res.render('campgrounds/index', { campgrounds });
@@ -57,9 +55,14 @@ app.get('/campgrounds/:id/edit', async (req, res) => {
 
 app.put('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
-    //res.send({ ...req.body.campground });
     const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
     res.redirect(`/campgrounds/${campground._id}`);
+});
+
+app.delete('/campgrounds/:id', async (req, res) => {
+    const { id } = req.params;
+    await CampGround.findByIdAndDelete(id);
+    res.redirect('/campgrounds');
 });
 
 app.get('/campgrounds/:id', async (req, res) => {
