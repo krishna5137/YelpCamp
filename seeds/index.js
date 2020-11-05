@@ -35,3 +35,4 @@ seedDB()
     .then(() => {
         mongoose.connection.close();
     });
+

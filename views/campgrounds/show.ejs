@@ -8,6 +8,9 @@
 <body>
     <h1><i><%= campground.title %></i></h1>
     <h2><i><%= campground.location %></i></h2>
+    <p>
+        <a href="/campgrounds/<%= campground._id %>/edit"><i>Edit</i></a>
+    </p>
     <a href="/campgrounds"><i>Back to listing</i></a>
 </body>
 </html>
