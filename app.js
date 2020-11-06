@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
+const morgan = require('morgan');
+const engine = require('ejs-mate');
 
 const CampGround = require('./models/campground');
 
@@ -19,11 +21,12 @@ db.once("open", () => {
 
 const app = express();
 
+app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-// Make Mongoose use `findOneAndUpdate()`.
-mongoose.set('useFindAndModify', false);
+mongoose.set('useFindAndModify', false); // Make Mongoose use `findOneAndUpdate()`.
 
+app.use(morgan('dev'));
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(methodOverride('_method')); // override with POST having ?_method=DELETE, ?_method=PUT
