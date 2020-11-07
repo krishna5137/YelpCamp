@@ -4,8 +4,11 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const engine = require('ejs-mate');
+const asyncError = require('./utils/asyncError');
+const ExpressError = require('./utils/ExpressError');
 
 const CampGround = require('./models/campground');
+const { nextTick } = require('process');
 
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
@@ -35,43 +38,54 @@ app.get('/', (req, res) => {
     res.render('home')
 });
 
-app.get('/campgrounds', async (req, res) => {
+app.get('/campgrounds', asyncError(async (req, res) => {
     const campgrounds = await CampGround.find({});
     res.render('campgrounds/index', { campgrounds });
-});
+}));
 
 app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 });
 
-app.post('/campgrounds', async (req, res) => {
+app.post('/campgrounds', asyncError(async (req, res, next) => {
+    if (!req.body.campground) throw new ExpressError('Invalid request', 400);
     const campground = new CampGround(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
-});
+}));
 
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findById(id);
     res.render('campgrounds/edit', { campground });
-});
+}));
 
-app.put('/campgrounds/:id', async (req, res) => {
+app.put('/campgrounds/:id', asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
     res.redirect(`/campgrounds/${campground._id}`);
-});
+}));
 
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', asyncError(async (req, res) => {
     const { id } = req.params;
     await CampGround.findByIdAndDelete(id);
     res.redirect('/campgrounds');
-});
+}));
 
-app.get('/campgrounds/:id', async (req, res) => {
+app.get('/campgrounds/:id', asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findById(id);
     res.render('campgrounds/show', { campground });
+}));
+
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page not found', 404))
+});
+
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Internal Server Error';
+    res.status(statusCode).render('error', { err });
 });
 
 app.listen(8080, () => {
