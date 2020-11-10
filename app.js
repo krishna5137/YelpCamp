@@ -6,9 +6,10 @@ const morgan = require('morgan');
 const engine = require('ejs-mate');
 const asyncError = require('./utils/asyncError');
 const ExpressError = require('./utils/ExpressError');
+const { campgroundSchema } = require('./validateSchemas.js');
 
 const CampGround = require('./models/campground');
-const { nextTick } = require('process');
+//const { nextTick } = require('process');
 
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
@@ -32,10 +33,23 @@ mongoose.set('useFindAndModify', false); // Make Mongoose use `findOneAndUpdate(
 app.use(morgan('dev'));
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.use(methodOverride('_method')); // override with POST having ?_method=DELETE, ?_method=PUT
+app.use(methodOverride('_method')); // override with POST having ?_method=DELETE/PUT
+
+/**
+ * Server-side validation
+ */
+const validateCampground = (req, res, next) => {
+    const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
 
 app.get('/', (req, res) => {
-    res.render('home')
+    res.render('home');
 });
 
 app.get('/campgrounds', asyncError(async (req, res) => {
@@ -47,8 +61,9 @@ app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 });
 
-app.post('/campgrounds', asyncError(async (req, res, next) => {
-    if (!req.body.campground) throw new ExpressError('Invalid request', 400);
+
+app.post('/campgrounds', validateCampground, asyncError(async (req, res, next) => {
+    //if (!req.body.campground) throw new ExpressError('Invalid request', 400);
     const campground = new CampGround(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -60,7 +75,7 @@ app.get('/campgrounds/:id/edit', asyncError(async (req, res) => {
     res.render('campgrounds/edit', { campground });
 }));
 
-app.put('/campgrounds/:id', asyncError(async (req, res) => {
+app.put('/campgrounds/:id', validateCampground, asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
     res.redirect(`/campgrounds/${campground._id}`);
