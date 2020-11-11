@@ -9,7 +9,6 @@ const ExpressError = require('./utils/ExpressError');
 const { campgroundSchema } = require('./validateSchemas.js');
 
 const CampGround = require('./models/campground');
-//const { nextTick } = require('process');
 
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
@@ -63,7 +62,6 @@ app.get('/campgrounds/new', (req, res) => {
 
 
 app.post('/campgrounds', validateCampground, asyncError(async (req, res, next) => {
-    //if (!req.body.campground) throw new ExpressError('Invalid request', 400);
     const campground = new CampGround(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
