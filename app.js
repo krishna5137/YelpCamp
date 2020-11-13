@@ -96,7 +96,6 @@ app.put('/campgrounds/:id', validateCampground, asyncError(async (req, res) => {
 app.get('/campgrounds/:id', asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findById(id).populate('reviews');
-    console.log(campground);
     res.render('campgrounds/show', { campground });
 }));
 
@@ -114,6 +113,16 @@ app.post('/campgrounds/:id/reviews', validateReview, asyncError(async (req, res)
     await review.save();
     await campground.save();
     res.redirect(`/campgrounds/${campground.id}`);
+}));
+
+/**
+ * Delete a review specific to a camping site
+ */
+app.delete('/campgrounds/:id/reviews/:r_id', asyncError(async (req, res) => {
+    const { id, r_id } = req.params;
+    await CampGround.findByIdAndUpdate(id, { $pull: { reviews: r_id } });
+    await Review.findByIdAndDelete(r_id);
+    res.redirect(`/campgrounds/${id}`);
 }));
 
 app.all('*', (req, res, next) => {
