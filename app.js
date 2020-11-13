@@ -95,7 +95,8 @@ app.put('/campgrounds/:id', validateCampground, asyncError(async (req, res) => {
 
 app.get('/campgrounds/:id', asyncError(async (req, res) => {
     const { id } = req.params;
-    const campground = await CampGround.findById(id);
+    const campground = await CampGround.findById(id).populate('reviews');
+    console.log(campground);
     res.render('campgrounds/show', { campground });
 }));
 
