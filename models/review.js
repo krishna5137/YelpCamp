@@ -5,7 +5,6 @@ const reviewSchema = new Schema({
     body: String,
     rating: {
         type: Number,
-        required: true
     }
 });
 
