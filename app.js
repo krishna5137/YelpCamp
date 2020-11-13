@@ -25,6 +25,7 @@ db.once("open", () => {
 
 const app = express();
 
+// use ejs-locals for all ejs templates:
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -73,7 +74,6 @@ app.get('/campgrounds', asyncError(async (req, res) => {
 app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 });
-
 
 app.post('/campgrounds', validateCampground, asyncError(async (req, res, next) => {
     const campground = new CampGround(req.body.campground);
