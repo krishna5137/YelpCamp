@@ -14,7 +14,8 @@ const reviews = require('./routes/reviews');
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
     useCreateIndex: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false // Make Mongoose use `findOneAndUpdate()`
 });
 
 const db = mongoose.connection;
@@ -29,12 +30,12 @@ const app = express();
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-mongoose.set('useFindAndModify', false); // Make Mongoose use `findOneAndUpdate()`.
 
 app.use(morgan('dev'));
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(methodOverride('_method')); // override with POST having ?_method=DELETE/PUT
+app.use(express.static(__dirname + '/public')); //static page content
 
 //to-do
 // cookies, session, Authentication
