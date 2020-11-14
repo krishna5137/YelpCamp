@@ -40,7 +40,8 @@ app.use(methodOverride('_method')); // override with POST having ?_method=DELETE
 app.use(express.static(__dirname + '/public')); //static page content
 
 //to-do
-// cookies, session, Authentication
+//Authentication
+
 const sessionConfig = {
     secret: 'redo-in-prod!',
     resave: false,
