@@ -5,6 +5,7 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const engine = require('ejs-mate');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 const asyncError = require('./utils/asyncError');
 const ExpressError = require('./utils/ExpressError');
@@ -53,7 +54,14 @@ const sessionConfig = {
 }
 
 app.use(session(sessionConfig));
+app.use(flash());
 
+// middleware to display flash messages
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
 /**
  * define the campgrounds, reviews routes
  */

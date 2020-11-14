@@ -32,6 +32,7 @@ router.get('/new', (req, res) => {
 router.post('/', validateCampground, asyncError(async (req, res, next) => {
     const campground = new CampGround(req.body.campground);
     await campground.save();
+    req.flash('success', 'Successfully added a new campground');
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
@@ -43,7 +44,8 @@ router.get('/:id/edit', asyncError(async (req, res) => {
 
 router.put('/:id', validateCampground, asyncError(async (req, res) => {
     const { id } = req.params;
-    const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
+    const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground });
+    req.flash('success', 'Successfully updated campground!');
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
@@ -56,6 +58,7 @@ router.get('/:id', asyncError(async (req, res) => {
 router.delete('/:id', asyncError(async (req, res) => {
     const { id } = req.params;
     await CampGround.findByIdAndDelete(id);
+    req.flash('success', 'Campground deletion successful!');
     res.redirect('/campgrounds');
 }));
 
