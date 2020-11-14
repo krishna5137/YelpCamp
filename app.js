@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const engine = require('ejs-mate');
+const session = require('express-session');
 
 const asyncError = require('./utils/asyncError');
 const ExpressError = require('./utils/ExpressError');
@@ -39,6 +40,19 @@ app.use(express.static(__dirname + '/public')); //static page content
 
 //to-do
 // cookies, session, Authentication
+const sessionConfig = {
+    secret: 'redo-in-prod!',
+    resave: false,
+    saveUninitialized: true,
+    //store config redis/mongo for prod. def: uses memory store
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // setting session expiry for a week from now in milli s
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    }
+}
+
+app.use(session(sessionConfig));
 
 /**
  * define the campgrounds, reviews routes
