@@ -13,8 +13,11 @@ router.post('/register', asyncError(async (req, res) => {
         const { username, email, password } = req.body;
         const user = new User({ email, username });
         const registeredUser = await User.register(user, password);
-        req.flash('success', 'Welcome to Yelp Camp');
-        res.redirect('/campgrounds');
+        req.logIn(registeredUser, err => {  // passport middleware th automatically login newly registered user
+            if (err) return next(err);
+            req.flash('success', 'Welcome to Yelp Camp');
+            res.redirect('/campgrounds');
+        });
     } catch (e) {
         req.flash('error', e.message);
         res.redirect('/register');

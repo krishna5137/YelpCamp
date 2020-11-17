@@ -68,9 +68,9 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// globally available through out the app
+// globally available throughout the app
 app.use((req, res, next) => {
-    res.locals.currentUser = req.user;
+    res.locals.currentUser = req.user; // current loggedIn user helper
     res.locals.success = req.flash('success'); // middleware to display flash messages
     res.locals.error = req.flash('error');
     next();
