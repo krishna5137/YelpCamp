@@ -1,5 +1,5 @@
 const router = require('express').Router();
-
+const isLoggedIn = require('../middleware');
 const asyncError = require('../utils/asyncError');
 const ExpressError = require('../utils/ExpressError');
 
@@ -25,11 +25,11 @@ router.get('/', asyncError(async (req, res) => {
     res.render('campgrounds/index', { campgrounds });
 }));
 
-router.get('/new', (req, res) => {
+router.get('/new', isLoggedIn, (req, res) => {
     res.render('campgrounds/new');
 });
 
-router.post('/', validateCampground, asyncError(async (req, res, next) => {
+router.post('/', isLoggedIn, validateCampground, asyncError(async (req, res, next) => {
     const campground = new CampGround(req.body.campground);
     await campground.save();
     req.flash('success', 'Successfully added a new campground');
@@ -59,7 +59,7 @@ router.get('/:id', asyncError(async (req, res) => {
     res.render('campgrounds/show', { campground });
 }));
 
-router.delete('/:id', asyncError(async (req, res) => {
+router.delete('/:id', isLoggedIn, asyncError(async (req, res) => {
     const { id } = req.params;
     await CampGround.findByIdAndDelete(id);
     req.flash('success', 'Campground deletion successful!');
