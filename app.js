@@ -6,11 +6,14 @@ const morgan = require('morgan');
 const engine = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 
 const ExpressError = require('./utils/ExpressError');
 
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
+const User = require('./models/user');
 
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
@@ -38,9 +41,6 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 app.use(methodOverride('_method')); // override with POST having ?_method=DELETE/PUT
 app.use(express.static(__dirname + '/public')); //static page content
 
-//to-do
-//Authentication
-
 const sessionConfig = {
     secret: 'redo-in-prod!',
     resave: false,
@@ -55,6 +55,16 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash());
+
+/**
+ * passport configs
+ */
+app.use(passport.initialize());
+app.use(passport.session()); // use after session is defined
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // middleware to display flash messages
 app.use((req, res, next) => {
