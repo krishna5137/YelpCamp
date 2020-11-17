@@ -42,6 +42,7 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 app.use(methodOverride('_method')); // override with POST having ?_method=DELETE/PUT
 app.use(express.static(__dirname + '/public')); //static page content
 
+// to-do
 const sessionConfig = {
     secret: 'redo-in-prod!',
     resave: false,
@@ -67,9 +68,10 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// middleware to display flash messages
+// globally available through out the app
 app.use((req, res, next) => {
-    res.locals.success = req.flash('success');
+    res.locals.currentUser = req.user;
+    res.locals.success = req.flash('success'); // middleware to display flash messages
     res.locals.error = req.flash('error');
     next();
 })
