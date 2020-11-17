@@ -7,7 +7,6 @@ const engine = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
 
-const asyncError = require('./utils/asyncError');
 const ExpressError = require('./utils/ExpressError');
 
 const campgrounds = require('./routes/campgrounds');
