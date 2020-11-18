@@ -3,36 +3,18 @@ const asyncError = require('../utils/asyncError');
 const { isLoggedIn, validateReview, verifyReviewAuthor } = require('../middleware');
 const Review = require('../models/review');
 const CampGround = require('../models/campground');
+const reviews = require('../controllers/reviews');
 
-router.post('/', isLoggedIn, validateReview, asyncError(async (req, res) => {
-    const { id } = req.params;
-    const campground = await CampGround.findById(id);
-    const review = new Review(req.body.review);
-    review.author = req.user._id;
-    campground.reviews.push(review);
-    await review.save();
-    await campground.save();
-    req.flash('success', 'Review posted');
-    res.redirect(`/campgrounds/${campground.id}`);
-}));
+router.post('/', isLoggedIn, validateReview, asyncError(reviews.createReview));
 
 /**
  * redo later
  * potential bug
  */
-router.get('/:r_id', (req, res) => {
-    const { id } = req.params;
-    res.redirect(`/campgrounds/${id}`);
-});
+router.get('/:r_id', reviews.findReview);
 /**
  * Delete a review specific to a camping site
  */
-router.delete('/:r_id', isLoggedIn, verifyReviewAuthor, asyncError(async (req, res) => {
-    const { id, r_id } = req.params;
-    await CampGround.findByIdAndUpdate(id, { $pull: { reviews: r_id } });
-    await Review.findByIdAndDelete(r_id);
-    req.flash('success', 'Review Deleted Successfully');
-    res.redirect(`/campgrounds/${id}`);
-}));
+router.delete('/:r_id', isLoggedIn, verifyReviewAuthor, asyncError(reviews.destroyReview));
 
 module.exports = router;
