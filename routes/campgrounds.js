@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const isLoggedIn = require('../middleware');
+const { isLoggedIn, validateCampground, verifyAuthor } = require('../middleware');
 const asyncError = require('../utils/asyncError');
 const ExpressError = require('../utils/ExpressError');
 
@@ -7,28 +7,8 @@ const CampGround = require('../models/campground');
 
 const { campgroundSchema } = require('../validateSchemas.js');
 
-/**
- * Server-side campground validation
- */
-const validateCampground = (req, res, next) => {
-    const { error } = campgroundSchema.validate(req.body);
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
 
-const verifyAuthor = async (req, res, next) => {
-    const { id } = req.params;
-    const campground = await CampGround.findById(id);
-    if (!campground.author.equals(req.user._id)) {
-        req.flash('error', 'Need permissions to modify');
-        return res.redirect(`/campgrounds/${id}`);
-    }
-    next();
-}
+
 
 router.get('/', asyncError(async (req, res) => {
     const campgrounds = await CampGround.find({});

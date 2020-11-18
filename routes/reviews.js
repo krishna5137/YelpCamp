@@ -1,25 +1,8 @@
 const router = require('express').Router({ mergeParams: true });
-
 const asyncError = require('../utils/asyncError');
-const ExpressError = require('../utils/ExpressError');
-
-const { reviewSchema } = require('../validateSchemas.js');
-
+const { validateReview } = require('../middleware');
 const Review = require('../models/review');
 const CampGround = require('../models/campground');
-
-/**
- * Server-side reviews model validation
- */
-const validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body);
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
 
 router.post('/', validateReview, asyncError(async (req, res) => {
     const { id } = req.params;
