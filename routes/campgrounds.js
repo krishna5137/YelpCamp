@@ -1,14 +1,7 @@
 const router = require('express').Router();
 const { isLoggedIn, validateCampground, verifyAuthor } = require('../middleware');
 const asyncError = require('../utils/asyncError');
-const ExpressError = require('../utils/ExpressError');
-
 const CampGround = require('../models/campground');
-
-const { campgroundSchema } = require('../validateSchemas.js');
-
-
-
 
 router.get('/', asyncError(async (req, res) => {
     const campgrounds = await CampGround.find({});
@@ -27,6 +20,22 @@ router.post('/', isLoggedIn, validateCampground, asyncError(async (req, res, nex
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
+router.get('/:id', asyncError(async (req, res) => {
+    const { id } = req.params;
+    const campground = await CampGround.findById(id)
+        .populate({
+            path: 'reviews',
+            populate: { path: 'author' }
+        })
+        .populate('author'); // populate across multiple levels
+    if (!campground) {
+        req.flash('error', 'Requested Campground doesn\'t exist');
+        return res.redirect('/campgrounds');
+    }
+    //console.log(campground.author, res.locals);
+    res.render('campgrounds/show', { campground });
+}));
+
 router.get('/:id/edit', isLoggedIn, verifyAuthor, asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findById(id);
@@ -43,17 +52,6 @@ router.put('/:id', isLoggedIn, verifyAuthor, validateCampground, asyncError(asyn
     const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', 'Successfully updated campground!');
     res.redirect(`/campgrounds/${campground._id}`);
-}));
-
-router.get('/:id', asyncError(async (req, res) => {
-    const { id } = req.params;
-    const campground = await CampGround.findById(id).populate('reviews').populate('author');
-    if (!campground) {
-        req.flash('error', 'Requested Campground doesn\'t exist');
-        return res.redirect('/campgrounds');
-    }
-    //console.log(campground.author, res.locals);
-    res.render('campgrounds/show', { campground });
 }));
 
 router.delete('/:id', isLoggedIn, verifyAuthor, asyncError(async (req, res) => {

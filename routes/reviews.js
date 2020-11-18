@@ -1,6 +1,6 @@
 const router = require('express').Router({ mergeParams: true });
 const asyncError = require('../utils/asyncError');
-const { isLoggedIn, validateReview } = require('../middleware');
+const { isLoggedIn, validateReview, verifyReviewAuthor } = require('../middleware');
 const Review = require('../models/review');
 const CampGround = require('../models/campground');
 
@@ -17,9 +17,17 @@ router.post('/', isLoggedIn, validateReview, asyncError(async (req, res) => {
 }));
 
 /**
+ * redo later
+ * potential bug
+ */
+router.get('/:r_id', (req, res) => {
+    const { id } = req.params;
+    res.redirect(`/campgrounds/${id}`);
+});
+/**
  * Delete a review specific to a camping site
  */
-router.delete('/:r_id', asyncError(async (req, res) => {
+router.delete('/:r_id', isLoggedIn, verifyReviewAuthor, asyncError(async (req, res) => {
     const { id, r_id } = req.params;
     await CampGround.findByIdAndUpdate(id, { $pull: { reviews: r_id } });
     await Review.findByIdAndDelete(r_id);
