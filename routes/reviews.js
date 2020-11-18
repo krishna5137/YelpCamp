@@ -7,14 +7,8 @@ const reviews = require('../controllers/reviews');
 
 router.post('/', isLoggedIn, validateReview, asyncError(reviews.createReview));
 
-/**
- * redo later
- * potential bug
- */
-router.get('/:r_id', reviews.findReview);
-/**
- * Delete a review specific to a camping site
- */
-router.delete('/:r_id', isLoggedIn, verifyReviewAuthor, asyncError(reviews.destroyReview));
+router.route('/:r_id')
+    .get(reviews.findReview) // redo potential bug
+    .delete(isLoggedIn, verifyReviewAuthor, asyncError(reviews.destroyReview)); //Delete a review specific to a camping site
 
 module.exports = router;

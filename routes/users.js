@@ -5,13 +5,13 @@ const User = require('../models/user');
 const asyncError = require('../utils/asyncError');
 const users = require('../controllers/users');
 
-router.get('/register', users.renderRegisterForm);
+router.route('/register')
+    .get(users.renderRegisterForm)
+    .post(asyncError(users.registerUser));
 
-router.post('/register', asyncError(users.registerUser));
-
-router.get('/login', users.renderLoginForm);
-
-router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), users.loginUser);
+router.route('/login')
+    .get(users.renderLoginForm)
+    .post(passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), users.loginUser);
 
 router.get('/logout', (req, res) => {
     req.logOut();
