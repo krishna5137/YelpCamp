@@ -57,6 +57,7 @@ router.get('/:id', asyncError(async (req, res) => {
         req.flash('error', 'Requested Campground doesn\'t exist');
         return res.redirect('/campgrounds');
     }
+    console.log(campground.author, res.locals);
     res.render('campgrounds/show', { campground });
 }));
 
