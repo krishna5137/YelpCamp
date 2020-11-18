@@ -20,6 +20,16 @@ const validateCampground = (req, res, next) => {
     }
 }
 
+const verifyAuthor = async (req, res, next) => {
+    const { id } = req.params;
+    const campground = await CampGround.findById(id);
+    if (!campground.author.equals(req.user._id)) {
+        req.flash('error', 'Need permissions to modify');
+        return res.redirect(`/campgrounds/${id}`);
+    }
+    next();
+}
+
 router.get('/', asyncError(async (req, res) => {
     const campgrounds = await CampGround.find({});
     res.render('campgrounds/index', { campgrounds });
@@ -37,14 +47,19 @@ router.post('/', isLoggedIn, validateCampground, asyncError(async (req, res, nex
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
-router.get('/:id/edit', asyncError(async (req, res) => {
+router.get('/:id/edit', isLoggedIn, verifyAuthor, asyncError(async (req, res) => {
     const { id } = req.params;
     const campground = await CampGround.findById(id);
+    if (!campground) {
+        req.flash('error', 'Cannot find that campground');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/edit', { campground });
 }));
 
-router.put('/:id', validateCampground, asyncError(async (req, res) => {
+router.put('/:id', isLoggedIn, verifyAuthor, validateCampground, asyncError(async (req, res) => {
     const { id } = req.params;
+
     const campground = await CampGround.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', 'Successfully updated campground!');
     res.redirect(`/campgrounds/${campground._id}`);
@@ -57,11 +72,11 @@ router.get('/:id', asyncError(async (req, res) => {
         req.flash('error', 'Requested Campground doesn\'t exist');
         return res.redirect('/campgrounds');
     }
-    console.log(campground.author, res.locals);
+    //console.log(campground.author, res.locals);
     res.render('campgrounds/show', { campground });
 }));
 
-router.delete('/:id', isLoggedIn, asyncError(async (req, res) => {
+router.delete('/:id', isLoggedIn, verifyAuthor, asyncError(async (req, res) => {
     const { id } = req.params;
     await CampGround.findByIdAndDelete(id);
     req.flash('success', 'Campground deletion successful!');
