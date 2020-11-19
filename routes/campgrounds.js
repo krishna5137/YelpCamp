@@ -6,7 +6,8 @@ const campgrounds = require('../controllers/campgrounds');
 
 //  a node.js middleware for handling multipart/form-data, which is primarily used for uploading files
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const { storage } = require('../cloudinary/config')
+const upload = multer({ storage });
 
 router.route('/')
     .get(asyncError(campgrounds.index))
