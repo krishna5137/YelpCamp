@@ -1,5 +1,6 @@
 <% layout('layouts/boilerplate') -%>
-<h1><i>List of CampGrounds</i></h1>
+
+<h1>List of CampGrounds</h1>
 <div>
     <a href="/campgrounds/new"><i>Add a new Campground</i></a>
 </div>
@@ -7,7 +8,14 @@
     <div class="card" mb-3>
         <div class="row">
             <div class="col-md-4">
+
+                <%if(campground.images.length) {%>
                 <img class="img-fluid" alt="" src="<%=campground.images[0].url%>">
+                <% }else {%>
+                    <img class="img-fluid" alt=""
+                        src="https://res.cloudinary.com/krish5137/image/upload/v1605778334/YelpCamp/lcsrrlmhjcbjf6vqbpnd.jpg">
+                <% } %>
+                
             </div>
             <div class="col-md-8">
                 <div class="card-body">
