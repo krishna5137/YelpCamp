@@ -103,15 +103,6 @@ map.on('load', function () {
     // the location of the feature, with
     // description HTML from its properties.
     map.on('click', 'unclustered-point', function (e) {
-
-        // const mag = e.features[0].properties.mag;
-        // let tsunami;
-
-        // if (e.features[0].properties.tsunami === 1) {
-        //     tsunami = 'yes';
-        // } else {
-        //     tsunami = 'no';
-        // }
         const { popUpText } = e.features[0].properties;
         const coordinates = e.features[0].geometry.coordinates.slice();
         // Ensure that if the map is zoomed out such that
@@ -134,20 +125,3 @@ map.on('load', function () {
         map.getCanvas().style.cursor = '';
     });
 });
-
-
-// https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson
-//const result = {
-//     "type": "Feature",
-//     "properties": {
-//         "id": "ak16994521",
-//         "mag": 2.3,
-//         "time": 1507425650893,
-//         "felt": null,
-//         "tsunami": 0
-//     },
-//     "geometry": {
-//         "type": "Point",
-//         "coordinates": [-151.5129, 63.1016, 0.0]
-//     }
-// }
