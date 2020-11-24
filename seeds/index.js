@@ -21,7 +21,7 @@ const title = (array) => {
 
 const seedDB = async () => {
     await CampGround.deleteMany({});
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 400; i++) {
         let rand1000 = Math.floor(Math.random() * 1000);
         let price = Math.floor((Math.random() * 30) + 10);
         const camp = new CampGround({
