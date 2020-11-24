@@ -1,19 +1,42 @@
 const Joi = require('joi');
+const sanitizeHtml = require('sanitize-html');
 
-module.exports.campgroundSchema = Joi.object({
-    campground: Joi.object({
-        title: Joi.string().required(),
-        price: Joi.number().required().min(1),
-        //image: Joi.string().required(),
-        description: Joi.string().required(),
-        location: Joi.string().required()
-    }).required(),
-    deleteImages: Joi.array()
+// Joi custom extensions
+const extension = (joi) => ({
+    type: 'string',
+    base: joi.string(),
+    messages: {
+        'string.escapeHTML': '{{#label}} must not include HTML!'
+    },
+    rules: {
+        escapeHTML: {
+            validate(value, helpers) {
+                const clean = sanitizeHtml(value, {
+                    allowedTags: [],
+                    allowedAttributes: {},
+                });
+                if (clean !== value) return helpers.error('string.escapeHTML', { value })
+                return clean;
+            }
+        }
+    }
 });
 
-module.exports.reviewSchema = Joi.object({
-    review: Joi.object({
-        body: Joi.string().required(),
-        rating: Joi.number().required().min(1).max(5)
+const customJoi = Joi.extend(extension);
+
+module.exports.campgroundSchema = customJoi.object({
+    campground: customJoi.object({
+        title: customJoi.string().required().escapeHTML(),
+        price: customJoi.number().required().min(1),
+        description: customJoi.string().required().escapeHTML(),
+        location: customJoi.string().required().escapeHTML()
+    }).required(),
+    deleteImages: customJoi.array()
+});
+
+module.exports.reviewSchema = customJoi.object({
+    review: customJoi.object({
+        body: customJoi.string().required().escapeHTML(),
+        rating: customJoi.number().required().min(1).max(5)
     }).required()
 });
