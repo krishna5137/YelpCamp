@@ -2,8 +2,6 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
-//console.log(process.env.CLOUDINARY_API_SECRET);
-
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -21,6 +19,7 @@ const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 const User = require('./models/user');
+const mongoSanitize = require('express-mongo-sanitize');
 
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
@@ -47,6 +46,7 @@ app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(methodOverride('_method')); // override with POST having ?_method=DELETE/PUT
 app.use(express.static(__dirname + '/public')); //static page content
+app.use(mongoSanitize()); // To prevent basic mongo injection
 
 // to-do
 const sessionConfig = {
