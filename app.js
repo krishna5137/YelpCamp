@@ -23,6 +23,11 @@ const User = require('./models/user');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 
+const MongoDBStore = require("connect-mongo")(session);
+
+//const mongoConnection = process.env.MONGO_DB_URL; // 'mongodb://localhost:27017/yelpcamp'
+const mongoUrl = process.env.MONGO_DB_URL || 'mongodb://localhost:27017/yelpcamp';
+
 mongoose.connect('mongodb://localhost:27017/yelpcamp', {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -51,8 +56,19 @@ app.use(express.static(__dirname + '/public')); //static page content
 app.use(mongoSanitize()); // To prevent basic mongo injection
 app.use(helmet());
 
+const store = new MongoDBStore({
+    url: 'mongodb://localhost:27017/yelpcamp',
+    secret: 'redo-in-prod!',
+    touchAfter: 24 * 60 * 60 // in seconds
+});
+
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", e)
+})
+
 // to-do
 const sessionConfig = {
+    store,
     secret: 'redo-in-prod!',
     resave: false,
     saveUninitialized: true,
