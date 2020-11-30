@@ -28,7 +28,7 @@ const MongoDBStore = require("connect-mongo")(session);
 //const mongoConnection = process.env.MONGO_DB_URL; // 'mongodb://localhost:27017/yelpcamp'
 const mongoUrl = process.env.MONGO_DB_URL || 'mongodb://localhost:27017/yelpcamp';
 
-mongoose.connect('mongodb://localhost:27017/yelpcamp', {
+mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
@@ -56,9 +56,11 @@ app.use(express.static(__dirname + '/public')); //static page content
 app.use(mongoSanitize()); // To prevent basic mongo injection
 app.use(helmet());
 
+const secret = process.env.SECRET || 'redo-in-prod!'
+
 const store = new MongoDBStore({
-    url: 'mongodb://localhost:27017/yelpcamp',
-    secret: 'redo-in-prod!',
+    url: mongoUrl,
+    secret,
     touchAfter: 24 * 60 * 60 // in seconds
 });
 
@@ -69,7 +71,7 @@ store.on("error", function (e) {
 // to-do
 const sessionConfig = {
     store,
-    secret: 'redo-in-prod!',
+    secret,
     resave: false,
     saveUninitialized: true,
     //store config redis/mongo for prod. def: uses memory store
